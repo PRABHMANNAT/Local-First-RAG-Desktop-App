@@ -1,0 +1,6 @@
+# Pinned for reproducible builds. 1.88 satisfies every dependency's MSRV
+# (darling 1.88, icu 1.86) while predating the rustc change that breaks the
+# `time` 0.3.x crate pulled in transitively by Tauri. Bump deliberately.
+[toolchain]
+channel = "1.88.0"
+components = ["rustfmt", "clippy"]

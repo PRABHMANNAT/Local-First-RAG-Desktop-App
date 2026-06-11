@@ -1,0 +1,5 @@
+# Raise rustc's analysis-thread stack. The `windows` crate's enormous generated
+# bindings can overflow the default stack on Windows (STATUS_STACK_BUFFER_OVERRUN
+# / 0xC0000409) during metadata compilation; 128 MiB compiles it reliably.
+[env]
+RUST_MIN_STACK = "134217728"
