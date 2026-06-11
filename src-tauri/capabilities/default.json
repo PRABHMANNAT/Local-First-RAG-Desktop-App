@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability set for the main Mnemos window. Kept minimal; new permissions are added per-milestone as features land.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:app:default",
+    "core:event:default",
+    "core:window:default",
+    "core:webview:default"
+  ]
+}

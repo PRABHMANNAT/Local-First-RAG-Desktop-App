@@ -1,0 +1,37 @@
+[package]
+name = "mnemos"
+version = "0.0.0"
+description = "Local-first, privacy-focused RAG desktop app with strict citations."
+authors = ["Mnemos contributors"]
+edition = "2021"
+rust-version = "1.77"
+license = "MIT"
+
+# The Tauri app links against this library; `main.rs` is a thin shim so the
+# same core can power desktop and (later) mobile entry points.
+[lib]
+name = "mnemos_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[features]
+# Default to no custom protocol features; surfaces are wired per-milestone.
+default = []
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
