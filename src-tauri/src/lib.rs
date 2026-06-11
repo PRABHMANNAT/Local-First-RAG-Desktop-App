@@ -6,6 +6,7 @@ pub mod db;
 pub mod embed;
 mod error;
 mod events;
+pub mod index;
 pub mod ingest;
 pub mod model;
 
