@@ -13,6 +13,7 @@ dist-ssr/
 
 # Rust / Tauri
 src-tauri/target/
+src-tauri/gen/
 **/*.rs.bk
 
 # Workspace data & app state (never commit user corpora)
