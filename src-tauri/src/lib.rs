@@ -5,6 +5,8 @@ mod commands;
 pub mod db;
 mod error;
 mod events;
+pub mod ingest;
+pub mod model;
 
 pub use error::{AppError, AppResult};
 
