@@ -9,6 +9,7 @@ mod events;
 pub mod index;
 pub mod ingest;
 pub mod model;
+pub mod retrieve;
 
 pub use error::{AppError, AppResult};
 
