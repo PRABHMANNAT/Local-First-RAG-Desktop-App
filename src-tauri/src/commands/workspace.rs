@@ -6,6 +6,7 @@ use std::sync::Arc;
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 
+use crate::answer::llm::{ollama::OllamaLlm, Llm, MockLlm};
 use crate::db;
 use crate::embed::{ollama::OllamaEmbedder, Embedder, MockEmbedder};
 use crate::error::{AppError, AppResult};
@@ -61,12 +62,19 @@ pub async fn open_default_workspace(
         ollama_detected,
     };
 
+    let llm: Arc<dyn Llm> = if ollama_detected {
+        Arc::new(OllamaLlm::default_local())
+    } else {
+        Arc::new(MockLlm::new(None))
+    };
+
     let store = Arc::new(SqliteVectorStore::new(pool.clone()));
     *state.active.lock().await = Some(ActiveWorkspace {
         id: "default".to_string(),
         pool,
         store,
         embedder,
+        llm,
     });
 
     Ok(info)

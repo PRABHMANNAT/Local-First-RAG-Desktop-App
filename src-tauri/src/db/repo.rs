@@ -175,6 +175,69 @@ pub async fn chunks_by_ids(pool: &SqlitePool, ids: &[String]) -> AppResult<Vec<C
     Ok(ids.iter().filter_map(|id| by_id.remove(id)).collect())
 }
 
+/// Insert a conversation row.
+pub async fn insert_conversation(
+    pool: &SqlitePool,
+    id: &str,
+    title: Option<&str>,
+    created_at: i64,
+) -> AppResult<()> {
+    sqlx::query("INSERT INTO conversation (id, title, created_at) VALUES (?1, ?2, ?3)")
+        .bind(id)
+        .bind(title)
+        .bind(created_at)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Insert a message row (`role` is `user`/`assistant`/`system`).
+pub async fn insert_message(
+    pool: &SqlitePool,
+    id: &str,
+    conversation_id: &str,
+    role: &str,
+    content: &str,
+    created_at: i64,
+) -> AppResult<()> {
+    sqlx::query(
+        "INSERT INTO message (id, conversation_id, role, content, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5)",
+    )
+    .bind(id)
+    .bind(conversation_id)
+    .bind(role)
+    .bind(content)
+    .bind(created_at)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+/// Record a citation linking a message to a chunk.
+pub async fn insert_citation(
+    pool: &SqlitePool,
+    message_id: &str,
+    chunk_id: &str,
+    retrieved_score: f64,
+    used_in_answer: bool,
+) -> AppResult<()> {
+    sqlx::query(
+        "INSERT INTO citation (message_id, chunk_id, retrieved_score, used_in_answer)
+         VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT(message_id, chunk_id) DO UPDATE SET
+             retrieved_score = excluded.retrieved_score,
+             used_in_answer = excluded.used_in_answer",
+    )
+    .bind(message_id)
+    .bind(chunk_id)
+    .bind(retrieved_score)
+    .bind(used_in_answer as i64)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
 /// Count chunks in a workspace (test/debug helper).
 pub async fn count_chunks(pool: &SqlitePool) -> AppResult<i64> {
     let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM chunk")

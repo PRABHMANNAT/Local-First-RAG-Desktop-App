@@ -9,6 +9,7 @@ use std::sync::Arc;
 use sqlx::SqlitePool;
 use tokio::sync::Mutex;
 
+use crate::answer::llm::Llm;
 use crate::embed::Embedder;
 use crate::index::VectorStore;
 
@@ -19,6 +20,7 @@ pub struct ActiveWorkspace {
     pub pool: SqlitePool,
     pub store: Arc<dyn VectorStore>,
     pub embedder: Arc<dyn Embedder>,
+    pub llm: Arc<dyn Llm>,
 }
 
 /// Shared, mutable app state registered with Tauri via `manage`.
