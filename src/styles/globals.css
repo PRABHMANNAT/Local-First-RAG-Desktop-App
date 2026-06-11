@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Self-hosted fonts — local-first, no runtime CDN dependency. */
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/inter";
+
+/*
+  Mnemos design tokens. Calm, minimal, restrained — Falconer-adjacent.
+  Off-white paper, single warm terracotta accent, hairline borders, no shadows
+  except for floating elements (drawers, command palette, popovers).
+*/
+@theme {
+  /* Surfaces */
+  --color-paper: #fafaf7;
+  --color-paper-raised: #ffffff;
+  --color-paper-sunken: #f3f2ec;
+
+  /* Ink (text) */
+  --color-ink: #1c1b18;
+  --color-ink-muted: #6b6862;
+  --color-ink-faint: #9b978e;
+
+  /* Single warm accent (terracotta) + ramp */
+  --color-accent: #c2613d;
+  --color-accent-hover: #a9512f;
+  --color-accent-soft: #f3e3da;
+
+  /* Hairline borders */
+  --color-line: #e7e4db;
+  --color-line-strong: #d8d4c8;
+
+  /* Status (used sparingly) */
+  --color-ok: #3b6d3b;
+  --color-warn: #b07d23;
+  --color-danger: #a8392c;
+
+  /* Typography */
+  --font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", monospace;
+
+  /* Radius — restrained */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* Calm focus ring in the accent, no harsh browser default. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Thin, unobtrusive scrollbars. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+}
