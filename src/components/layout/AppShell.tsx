@@ -3,6 +3,7 @@ import { SourcesPanel } from "@/components/layout/SourcesPanel";
 import { ChatSurface } from "@/components/layout/ChatSurface";
 import { StatusBar } from "@/components/common/StatusBar";
 import { useUiStore } from "@/stores/ui";
+import { useWorkspaceBootstrap } from "@/hooks/useWorkspaceBootstrap";
 
 /**
  * Top-level layout: workspace rail · (collapsible) sources panel · chat surface,
@@ -11,6 +12,7 @@ import { useUiStore } from "@/stores/ui";
  */
 export function AppShell() {
   const sourcesPanelOpen = useUiStore((s) => s.sourcesPanelOpen);
+  useWorkspaceBootstrap();
 
   return (
     <div className="flex h-full flex-col">

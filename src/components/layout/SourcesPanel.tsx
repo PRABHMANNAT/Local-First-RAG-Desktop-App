@@ -1,11 +1,15 @@
 import { EmptyState } from "@/components/common/EmptyState";
+import { AddSourceButton } from "@/components/sources/AddSourceButton";
+import { SourceTree } from "@/components/sources/SourceTree";
+import { useSourcesStore } from "@/stores/sources";
 
 /**
- * Left-of-main sources panel: a tree of ingested sources with sync status and
- * progress, plus a drag-and-drop target. M0 renders only the empty state — the
- * source tree and drop handling arrive with folder ingest in M1.
+ * Left-of-main sources panel: a tree of ingested sources with live status, plus
+ * the add-source action. Empty until the first source is added.
  */
 export function SourcesPanel() {
+  const hasSources = useSourcesStore((s) => s.items.length > 0);
+
   return (
     <aside
       aria-label="Sources"
@@ -13,21 +17,18 @@ export function SourcesPanel() {
     >
       <header className="flex items-center justify-between px-4 py-3">
         <h2 className="font-display text-sm text-ink">Sources</h2>
+        {hasSources ? <AddSourceButton compact /> : null}
       </header>
-      <div className="flex-1">
-        <EmptyState
-          title="No sources yet"
-          description="Drop a folder, paste a Git or YouTube URL, or drag in PDFs to start building this workspace."
-          action={
-            <button
-              type="button"
-              disabled
-              className="rounded-md border border-line-strong px-3 py-1.5 text-sm text-ink-muted disabled:opacity-60"
-            >
-              Add source
-            </button>
-          }
-        />
+      <div className="flex-1 overflow-y-auto">
+        {hasSources ? (
+          <SourceTree />
+        ) : (
+          <EmptyState
+            title="No sources yet"
+            description="Drop in a folder to start building this workspace. Repos, PDFs, URLs, and YouTube come next."
+            action={<AddSourceButton />}
+          />
+        )}
       </div>
     </aside>
   );
