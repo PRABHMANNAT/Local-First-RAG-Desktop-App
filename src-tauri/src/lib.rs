@@ -3,6 +3,7 @@
 
 mod commands;
 pub mod db;
+pub mod embed;
 mod error;
 mod events;
 pub mod ingest;
