@@ -5,6 +5,8 @@
 //! SQL strings live below this module (in `repo`, landing with M1). Everything
 //! above the db layer calls typed helpers, never raw SQL.
 
+pub mod repo;
+
 use std::path::Path;
 
 use sqlx::migrate::Migrator;
