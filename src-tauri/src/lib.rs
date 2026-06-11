@@ -1,6 +1,7 @@
 //! Mnemos core library. `main.rs` is a thin shim that calls [`run`]; keeping the
 //! app body in a lib lets the same core drive desktop and (later) mobile.
 
+pub mod answer;
 mod commands;
 pub mod db;
 pub mod embed;
@@ -37,6 +38,7 @@ pub fn run() {
             commands::workspace::open_default_workspace,
             commands::ingest::add_folder_source,
             commands::chat::search,
+            commands::chat::ask,
             events::start_tick,
         ])
         .run(tauri::generate_context!())
