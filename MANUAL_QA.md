@@ -35,3 +35,28 @@ Manual (verify in a desktop session):
 - [ ] Chat surface shows the "Ask your sources" empty state
 - [ ] Window resizes cleanly down to the 760×480 minimum
 - [ ] Repeat on macOS, Windows, Linux
+
+---
+
+## M1 — Folder ingest + chat
+
+Automated (verified in CI + locally):
+
+- [x] `cargo test --all` green (52 tests: chunker, walker, embed, index, repo,
+      pipeline incl. idempotent re-ingest, end-to-end retrieve, answer packing +
+      citation parsing)
+- [x] `pnpm test` green (10 tests incl. citation rendering, sources store)
+- [x] fmt + clippy `-D warnings` clean; `pnpm build` + `pnpm typecheck` clean
+
+Manual (desktop session; recommended with Ollama running
+`ollama pull nomic-embed-text` and an instruct model):
+
+- [ ] Click "Add folder source", pick a folder of markdown/text/code
+- [ ] Sources panel shows the source ingesting with a live percentage, then
+      flips to "ready" with doc/chunk counts
+- [ ] Ask a question answerable from the folder → get an answer with footnote
+      citations whose sources list the right files
+- [ ] Ask something unrelated → the answer declines (reject-to-answer), no
+      fabricated citations
+- [ ] Re-add the same folder → documents are skipped (idempotent), not duplicated
+- [ ] Status bar reflects 🟢 local-only throughout (no network without Ollama)
