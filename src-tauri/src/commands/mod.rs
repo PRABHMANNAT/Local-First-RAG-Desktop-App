@@ -4,6 +4,10 @@
 //! M0 ships two commands that prove the request/response half of the IPC
 //! contract: `ping` (echo round-trip) and `app_version`.
 
+pub mod chat;
+pub mod ingest;
+pub mod workspace;
+
 use serde::Serialize;
 
 use crate::error::{AppError, AppResult};

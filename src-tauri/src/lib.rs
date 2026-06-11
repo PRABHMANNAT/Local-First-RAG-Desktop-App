@@ -10,6 +10,7 @@ pub mod index;
 pub mod ingest;
 pub mod model;
 pub mod retrieve;
+pub mod state;
 
 pub use error::{AppError, AppResult};
 
@@ -29,9 +30,13 @@ pub fn run() {
     init_tracing();
 
     tauri::Builder::default()
+        .manage(state::AppState::default())
         .invoke_handler(tauri::generate_handler![
             commands::ping,
             commands::app_version,
+            commands::workspace::open_default_workspace,
+            commands::ingest::add_folder_source,
+            commands::chat::search,
             events::start_tick,
         ])
         .run(tauri::generate_context!())
