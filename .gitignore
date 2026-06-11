@@ -1,0 +1,31 @@
+# Claude / editor
+.claude/
+.vscode/
+.idea/
+.DS_Store
+
+# Node / frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# Rust / Tauri
+src-tauri/target/
+**/*.rs.bk
+
+# Workspace data & app state (never commit user corpora)
+*.db
+*.db-shm
+*.db-wal
+/workspaces/
+/.mnemos/
+
+# Sidecar binaries (resolved per-OS, not committed raw)
+/sidecars/bin/
+
+# Test / build output
+coverage/
+playwright-report/
+test-results/
