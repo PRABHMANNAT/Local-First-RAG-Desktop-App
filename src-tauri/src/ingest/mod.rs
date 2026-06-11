@@ -4,3 +4,4 @@
 //! backpressured queue, and the indexer land across M1–M4.
 
 pub mod chunker;
+pub mod sources;

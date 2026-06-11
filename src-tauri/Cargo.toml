@@ -30,6 +30,12 @@ sqlx = { version = "0.8", default-features = false, features = [
     "migrate",
     "macros",
 ] }
+ignore = "0.4"
+blake3 = "1"
+uuid = { version = "1", features = ["v7"] }
+
+[dev-dependencies]
+tempfile = "3"
 
 [features]
 # Default to no custom protocol features; surfaces are wired per-milestone.
