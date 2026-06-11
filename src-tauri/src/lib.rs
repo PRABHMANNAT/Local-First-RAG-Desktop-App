@@ -2,6 +2,7 @@
 //! app body in a lib lets the same core drive desktop and (later) mobile.
 
 mod commands;
+pub mod db;
 mod error;
 mod events;
 

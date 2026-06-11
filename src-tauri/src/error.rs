@@ -10,6 +10,12 @@ pub enum AppError {
     #[error("serialization error: {0}")]
     Serde(#[from] serde_json::Error),
 
+    #[error("database error: {0}")]
+    Db(#[from] sqlx::Error),
+
+    #[error("migration error: {0}")]
+    Migrate(#[from] sqlx::migrate::MigrateError),
+
     #[error("invalid argument: {0}")]
     InvalidArgument(String),
 
