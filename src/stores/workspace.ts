@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { WorkspaceInfo } from "@/ipc/client";
 
 /** A workspace as listed in the app registry (mirrors the `workspace` table). */
 export interface Workspace {
@@ -10,8 +11,11 @@ export interface Workspace {
 interface WorkspaceState {
   workspaces: Workspace[];
   activeId: string | null;
+  /** Backend info about the active workspace (embedder, ollama status). */
+  info: WorkspaceInfo | null;
   setWorkspaces: (workspaces: Workspace[]) => void;
   setActive: (id: string | null) => void;
+  setInfo: (info: WorkspaceInfo | null) => void;
 }
 
 /**
@@ -21,6 +25,8 @@ interface WorkspaceState {
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({
   workspaces: [],
   activeId: null,
+  info: null,
   setWorkspaces: (workspaces) => set({ workspaces }),
   setActive: (id) => set({ activeId: id }),
+  setInfo: (info) => set({ info }),
 }));
