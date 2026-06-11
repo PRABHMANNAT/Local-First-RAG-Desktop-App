@@ -6,7 +6,6 @@
 //! above the db layer calls typed helpers, never raw SQL.
 
 use std::path::Path;
-use std::str::FromStr;
 
 use sqlx::migrate::Migrator;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous};
@@ -58,6 +57,7 @@ pub async fn open_workspace_db(db_path: &Path) -> AppResult<SqlitePool> {
 /// must stay in the pool for the in-memory database to persist across queries.
 #[cfg(test)]
 async fn open_memory_pool() -> AppResult<SqlitePool> {
+    use std::str::FromStr;
     let opts = SqliteConnectOptions::from_str("sqlite::memory:")
         .expect("valid sqlite memory url")
         .foreign_keys(true);
@@ -116,10 +116,12 @@ mod tests {
         let pool = open_memory_pool().await.unwrap();
         WORKSPACE_MIGRATOR.run(&pool).await.unwrap();
 
-        sqlx::query("INSERT INTO source (id, kind, uri, status) VALUES ('s1','folder','/tmp','ready')")
-            .execute(&pool)
-            .await
-            .unwrap();
+        sqlx::query(
+            "INSERT INTO source (id, kind, uri, status) VALUES ('s1','folder','/tmp','ready')",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
         sqlx::query("INSERT INTO document (id, source_id, path_or_url, content_hash) VALUES ('d1','s1','/tmp/a.md','hash')")
             .execute(&pool)
             .await
