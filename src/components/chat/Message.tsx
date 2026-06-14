@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { ChatMessage } from "@/stores/chat";
 import type { Citation } from "@/ipc/client";
+import { useViewerStore } from "@/stores/viewer";
 
 function basename(uri: string): string {
   const parts = uri.split(/[\\/]/).filter(Boolean);
@@ -9,16 +10,16 @@ function basename(uri: string): string {
 
 /**
  * Render assistant content, replacing inline `[^chunk_id]` markers with
- * superscript footnote numbers. M1 renders them as plain (non-interactive)
- * markers; the click-through citation drawer arrives in M2.
+ * clickable superscript footnote numbers. Clicking a marker opens the cited
+ * chunk in the source viewer drawer at its locator (M2).
  */
-function renderContent(message: ChatMessage): ReactNode {
+function renderContent(message: ChatMessage, openCitation: (c: Citation) => void): ReactNode {
   const used = (message.citations ?? []).filter((c) => c.usedInAnswer);
   if (message.role !== "assistant" || used.length === 0) {
     return message.content;
   }
-  const numberById = new Map<string, number>();
-  used.forEach((c, i) => numberById.set(c.chunkId, i + 1));
+  const byId = new Map<string, { n: number; citation: Citation }>();
+  used.forEach((c, i) => byId.set(c.chunkId, { n: i + 1, citation: c }));
 
   const parts: ReactNode[] = [];
   const re = /\[\^([^\]]+)\]/g;
@@ -28,12 +29,18 @@ function renderContent(message: ChatMessage): ReactNode {
   while ((m = re.exec(message.content)) !== null) {
     parts.push(message.content.slice(last, m.index));
     const id = m[1] ?? "";
-    const n = numberById.get(id);
-    if (n !== undefined) {
+    const hit = byId.get(id);
+    if (hit !== undefined) {
       parts.push(
-        <sup key={key++} className="ml-0.5 text-[10px] font-medium text-accent">
-          {n}
-        </sup>,
+        <button
+          type="button"
+          key={key++}
+          onClick={() => openCitation(hit.citation)}
+          className="ml-0.5 align-super text-[10px] font-medium text-accent hover:underline"
+          aria-label={`Open citation ${hit.n}`}
+        >
+          {hit.n}
+        </button>,
       );
     }
     last = re.lastIndex;
@@ -42,7 +49,13 @@ function renderContent(message: ChatMessage): ReactNode {
   return parts;
 }
 
-function Footnotes({ citations }: { citations: Citation[] }) {
+function Footnotes({
+  citations,
+  openCitation,
+}: {
+  citations: Citation[];
+  openCitation: (c: Citation) => void;
+}) {
   const used = citations.filter((c) => c.usedInAnswer);
   if (used.length === 0) return null;
   return (
@@ -50,10 +63,15 @@ function Footnotes({ citations }: { citations: Citation[] }) {
       {used.map((c, i) => (
         <li key={c.chunkId} className="flex gap-2">
           <span className="text-accent">{i + 1}</span>
-          <span className="truncate" title={c.pathOrUrl}>
+          <button
+            type="button"
+            onClick={() => openCitation(c)}
+            className="truncate text-left hover:text-ink hover:underline"
+            title={c.pathOrUrl}
+          >
             {basename(c.pathOrUrl)}
             {c.structuralPath ? ` · ${c.structuralPath}` : ""}
-          </span>
+          </button>
         </li>
       ))}
     </ol>
@@ -63,6 +81,7 @@ function Footnotes({ citations }: { citations: Citation[] }) {
 /** A single chat message bubble. */
 export function Message({ message }: { message: ChatMessage }) {
   const isUser = message.role === "user";
+  const openCitation = useViewerStore((s) => s.open);
   return (
     <div className={isUser ? "flex justify-end" : "flex justify-start"}>
       <div
@@ -75,8 +94,10 @@ export function Message({ message }: { message: ChatMessage }) {
               : "bg-paper-raised text-ink ring-1 ring-line")
         }
       >
-        <div className="whitespace-pre-wrap">{renderContent(message)}</div>
-        {message.citations ? <Footnotes citations={message.citations} /> : null}
+        <div className="whitespace-pre-wrap">{renderContent(message, openCitation)}</div>
+        {message.citations ? (
+          <Footnotes citations={message.citations} openCitation={openCitation} />
+        ) : null}
       </div>
     </div>
   );
