@@ -1,6 +1,7 @@
 import { WorkspaceRail } from "@/components/layout/WorkspaceRail";
 import { SourcesPanel } from "@/components/layout/SourcesPanel";
 import { ChatSurface } from "@/components/layout/ChatSurface";
+import { ViewerDrawer } from "@/components/viewer/ViewerDrawer";
 import { StatusBar } from "@/components/common/StatusBar";
 import { useUiStore } from "@/stores/ui";
 import { useWorkspaceBootstrap } from "@/hooks/useWorkspaceBootstrap";
@@ -20,6 +21,7 @@ export function AppShell() {
         <WorkspaceRail />
         {sourcesPanelOpen ? <SourcesPanel /> : null}
         <ChatSurface />
+        <ViewerDrawer />
       </div>
       <StatusBar />
     </div>
