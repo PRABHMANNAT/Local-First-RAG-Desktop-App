@@ -3,7 +3,9 @@
 //! brute-force cosine search over vectors stored in SQLite — correct and fully
 //! testable. A LanceDB-backed implementation drops in behind this trait at M2.
 
+pub mod bm25;
 pub mod sqlite_store;
+pub mod text;
 
 use async_trait::async_trait;
 
