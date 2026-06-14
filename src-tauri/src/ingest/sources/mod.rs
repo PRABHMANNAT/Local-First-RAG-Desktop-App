@@ -3,3 +3,6 @@
 //! repo/url (M3) and youtube (M4) follow the same shape.
 
 pub mod folder;
+pub mod ignore_rules;
+pub mod repo;
+pub mod url;

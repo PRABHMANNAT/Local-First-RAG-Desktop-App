@@ -62,9 +62,12 @@ pub fn walk(root: &Path, cfg: &IncludeConfig) -> Vec<WalkedFile> {
     let mut out = Vec::new();
     // `require_git(false)` makes `.gitignore` apply to plain folders too, not
     // only inside a git repo — folders dropped into Mnemos often aren't repos.
+    // `.mnemosignore` is layered on top with identical gitignore semantics
+    // (PLAN §5), so user excludes compose with the repo's own ignore rules.
     let walker = ignore::WalkBuilder::new(root)
         .hidden(true)
         .require_git(false)
+        .add_custom_ignore_filename(super::ignore_rules::MNEMOSIGNORE)
         .build();
     for entry in walker.flatten() {
         if !entry.file_type().is_some_and(|t| t.is_file()) {
@@ -127,6 +130,26 @@ mod tests {
         assert!(names.contains(&"a.md".to_string()));
         assert!(names.contains(&"b.rs".to_string()));
         assert!(!names.contains(&"c.png".to_string()));
+    }
+
+    #[test]
+    fn walk_respects_mnemosignore() {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        fs::write(root.join(".mnemosignore"), "vendor/\n*.gen.ts\n").unwrap();
+        fs::write(root.join("keep.ts"), "export const a = 1;").unwrap();
+        fs::write(root.join("schema.gen.ts"), "// generated").unwrap();
+        fs::create_dir(root.join("vendor")).unwrap();
+        fs::write(root.join("vendor").join("lib.ts"), "// vendored").unwrap();
+
+        let files = walk(root, &IncludeConfig::default());
+        let names: Vec<_> = files
+            .iter()
+            .map(|f| f.path.file_name().unwrap().to_string_lossy().to_string())
+            .collect();
+        assert!(names.contains(&"keep.ts".to_string()));
+        assert!(!names.contains(&"schema.gen.ts".to_string()), "{names:?}");
+        assert!(!names.contains(&"lib.ts".to_string()), "{names:?}");
     }
 
     #[test]

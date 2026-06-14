@@ -45,6 +45,30 @@ pub async fn set_source_status(pool: &SqlitePool, id: &str, status: &str) -> App
     Ok(())
 }
 
+/// Mark a source as freshly synced: set `status = 'ready'` and stamp
+/// `last_synced_at`. Called after a user-triggered repo/url re-sync.
+pub async fn set_source_synced(pool: &SqlitePool, id: &str, synced_at: i64) -> AppResult<()> {
+    sqlx::query("UPDATE source SET status = 'ready', last_synced_at = ?2 WHERE id = ?1")
+        .bind(id)
+        .bind(synced_at)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Return a source's `(kind, uri)` by id, if it exists.
+pub async fn source_kind_and_uri(
+    pool: &SqlitePool,
+    id: &str,
+) -> AppResult<Option<(String, String)>> {
+    let row: Option<(String, String)> =
+        sqlx::query_as("SELECT kind, uri FROM source WHERE id = ?1")
+            .bind(id)
+            .fetch_optional(pool)
+            .await?;
+    Ok(row)
+}
+
 /// Look up an existing document by source + path, returning `(id, content_hash)`.
 pub async fn document_by_path(
     pool: &SqlitePool,
