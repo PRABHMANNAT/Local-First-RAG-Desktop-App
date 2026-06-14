@@ -175,6 +175,20 @@ pub async fn chunks_by_ids(pool: &SqlitePool, ids: &[String]) -> AppResult<Vec<C
     Ok(ids.iter().filter_map(|id| by_id.remove(id)).collect())
 }
 
+/// Fetch every chunk's `(id, text)` for building the in-process BM25 index.
+/// Ordered by document then ordinal so the lexical index is built
+/// deterministically (BM25 tie-breaks on insertion order).
+pub async fn all_chunk_texts(pool: &SqlitePool) -> AppResult<Vec<(String, String)>> {
+    let rows: Vec<(String, String)> = sqlx::query_as(
+        "SELECT c.id, c.text FROM chunk c
+         JOIN document d ON d.id = c.document_id
+         ORDER BY c.document_id, c.ordinal",
+    )
+    .fetch_all(pool)
+    .await?;
+    Ok(rows)
+}
+
 /// Insert a conversation row.
 pub async fn insert_conversation(
     pool: &SqlitePool,
