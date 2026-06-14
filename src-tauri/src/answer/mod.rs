@@ -103,6 +103,7 @@ mod tests {
             locator: serde_json::to_string(&Locator::charspan(0, text.len())).unwrap(),
             path_or_url: format!("/docs/{id}.md"),
             score,
+            token_count: text.split_whitespace().count(),
         }
     }
 
