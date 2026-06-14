@@ -53,3 +53,32 @@ tests and 10 vitest tests pass; fmt and clippy (`-D warnings`) are clean.
 Live answers require a local Ollama daemon (`nomic-embed-text` + an instruct
 model); without it the app falls back to the offline mock so the pipeline still
 runs for development. Verifying answers against real Ollama is a manual-QA step.
+
+## M2 — Hybrid retrieval + citation drawer
+
+Retrieval went hybrid and citations became navigable. On the Rust side, a
+lexical arm joins the vector arm: a dependency-free **Okapi BM25** index
+(`index/bm25.rs`) with a shared **analyzer** (`index/text.rs`, lowercase →
+alphanumeric split → small stop-word set) is built over the chunk corpus and
+queried alongside vector search. The two ranked lists fuse via **Reciprocal Rank
+Fusion** (`retrieve/fusion.rs`, k=60) — fusing on rank, not on incomparable
+cosine/BM25 scores. **MinHash** over 3-token shingles (`retrieve/dedup.rs`, 64
+hash slots) drops near-duplicate chunks while keeping the highest-ranked
+representative, and a greedy **token-budget packer** (`retrieve/packing.rs`)
+trims the fused set to the 6000-token context budget, admitting a smaller tail
+chunk when a larger one overflows rather than truncating. `retrieve_hybrid` wires
+vector ∪ BM25 → RRF → dedup → pack behind the existing `RetrievedChunk` surface,
+so the answerer is untouched. As with M1's `SqliteVectorStore` standing in for
+LanceDB, the in-process BM25 is a deliberate stand-in for `tantivy` — correct,
+fully unit-tested, and free of the native-binding friction tantivy brings on
+Windows; it can be swapped behind the same surface later. On the **frontend**,
+citation markers and footnotes are now clickable and open a **source viewer
+drawer** (`components/viewer/`) that switches on locator kind: `TextView`
+(charspan highlight), `CodeView` (line-range highlight with gutter), and
+`PdfView` (page text + char-span highlight with an optional bbox overlay,
+preferring bbox and falling back to span per PLAN §7); `time` locators render a
+timestamped transcript window. Multiple open citations become **tabs** (deduped
+by chunk id, with previous-tab focus on close), backed by a `viewer` Zustand
+store. Pure highlight math lives in `lib/highlight.ts` so it unit-tests in
+isolation. 83 Rust tests and 22 vitest tests pass; fmt, clippy (`-D warnings`),
+eslint, typecheck, and build are all green.
