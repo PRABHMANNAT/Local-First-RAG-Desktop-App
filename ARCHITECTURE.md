@@ -1,9 +1,8 @@
 # Architecture
 
 > This is the living architecture overview. It grows with each milestone; the
-> full diagram, module map, and design rationale are finalized at M5. For the
-> complete plan (data model, pipelines, threat model, milestones) see
-> [PLAN.md](PLAN.md).
+> full diagram, module map, and design rationale are finalized at M5. Milestone
+> status is tracked in [PROGRESS.md](PROGRESS.md).
 
 ## Shape
 

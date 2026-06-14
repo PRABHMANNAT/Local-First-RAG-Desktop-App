@@ -1,8 +1,8 @@
 # Progress
 
 A running log of milestone completion. One paragraph per milestone, appended as
-each is finished (newest at the bottom). See [PLAN.md](PLAN.md) for the full
-roadmap and acceptance criteria.
+each is finished (newest at the bottom). See [ARCHITECTURE.md](ARCHITECTURE.md)
+for the design overview.
 
 ## M0 — Scaffold
 
@@ -76,9 +76,37 @@ citation markers and footnotes are now clickable and open a **source viewer
 drawer** (`components/viewer/`) that switches on locator kind: `TextView`
 (charspan highlight), `CodeView` (line-range highlight with gutter), and
 `PdfView` (page text + char-span highlight with an optional bbox overlay,
-preferring bbox and falling back to span per PLAN §7); `time` locators render a
+preferring bbox and falling back to span per the citation design); `time` locators render a
 timestamped transcript window. Multiple open citations become **tabs** (deduped
 by chunk id, with previous-tab focus on close), backed by a `viewer` Zustand
 store. Pure highlight math lives in `lib/highlight.ts` so it unit-tests in
 isolation. 83 Rust tests and 22 vitest tests pass; fmt, clippy (`-D warnings`),
 eslint, typecheck, and build are all green.
+
+## M3 — Repo + URL sources
+
+Two new source kinds joined the folder source, both following the same
+ingest contract. The **repo source** (`ingest/sources/repo.rs`) parses and
+validates a Git URL (https / git@ SSH forms), derives a filesystem-safe
+`org__repo` cache directory, and shallow-clones (`--depth 1`) — or fetches, on a
+re-sync — via the `git` binary, then reuses the folder walk to ingest the
+working tree. The **URL source** (`ingest/sources/url.rs`) fetches a page with
+`reqwest` and runs a small, dependency-free readability pass (drop
+`<head>`/`<script>`/`<style>`/comments, strip tags, collapse whitespace, pull
+the `<title>`); the pure extractor is fully unit-tested without a network.
+**`.mnemosignore`** (`ingest/sources/ignore_rules.rs`) augments `.gitignore`
+with identical semantics by registering it as a custom ignore filename on the
+walker, so user excludes compose with a repo's own ignore rules. The pipeline
+gained `ingest_url` and `ingest_repo`, sharing a new `ingest_text_document`
+helper for the single-document path (idempotent on content hash), and the
+command layer exposes `add_repo_source`, `add_url_source`, and `sync_source`,
+each running in the background and emitting the existing
+`ingest:progress`/`ingest:done` events; `sync_source` re-fetches a repo/url
+source and stamps `last_synced_at`. On the **frontend**, the Add-source control
+became a menu (folder / Git repository / web page), the source tree shows
+per-kind icons and a Sync affordance for syncable kinds, and the sources store
+tracks a `syncing` state. As deliberate stand-ins (consistent with M1/M2), the
+git clone shells out to the system `git` rather than a bundled static binary,
+and the clone cache lives under a temp dir pending per-workspace cache wiring.
+98 Rust tests and 26 vitest tests pass; fmt, clippy (`-D warnings`), eslint,
+typecheck, and build are all green.
