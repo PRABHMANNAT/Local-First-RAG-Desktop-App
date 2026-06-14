@@ -20,6 +20,22 @@ describe("sources store", () => {
     expect(item.progress).toBeUndefined();
   });
 
+  it("re-syncs a ready source and returns to ready", () => {
+    const s = useSourcesStore.getState();
+    s.add({ id: "r1", kind: "repo", uri: "https://github.com/o/r", status: "ready" });
+    s.markSyncing("r1");
+    expect(useSourcesStore.getState().items[0]!.status).toBe("syncing");
+
+    // Progress events during a sync keep the syncing status.
+    s.setProgress("r1", 1, 4);
+    expect(useSourcesStore.getState().items[0]!.status).toBe("syncing");
+
+    s.markDone("r1", { ok: true, documents: 4, chunks: 12 });
+    const item = useSourcesStore.getState().items[0]!;
+    expect(item.status).toBe("ready");
+    expect(item.chunks).toBe(12);
+  });
+
   it("marks a failed ingest as error", () => {
     const s = useSourcesStore.getState();
     s.add({ id: "s2", kind: "folder", uri: "/x", status: "ingesting" });

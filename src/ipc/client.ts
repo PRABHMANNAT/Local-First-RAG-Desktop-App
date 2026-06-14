@@ -65,6 +65,18 @@ export const api = {
   addFolderSource: (path: string): Promise<string> =>
     invoke<string>("add_folder_source", { path }),
 
+  /** Clone a public Git URL and ingest it as a source; returns the source id.
+   * The shallow clone is the only network egress (PLAN §9). */
+  addRepoSource: (url: string): Promise<string> =>
+    invoke<string>("add_repo_source", { url }),
+
+  /** Fetch a web URL, extract readable text, and ingest it; returns the id. */
+  addUrlSource: (url: string): Promise<string> =>
+    invoke<string>("add_url_source", { url }),
+
+  /** Re-sync a repo/url source (fetch + re-ingest changed documents). */
+  syncSource: (id: string): Promise<void> => invoke<void>("sync_source", { id }),
+
   /** Ask a question; returns a cited answer (or a declined one). */
   ask: (query: string): Promise<Answer> => invoke<Answer>("ask", { query }),
 };
